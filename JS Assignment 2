@@ -1,0 +1,8 @@
+/*
+  Given a name, occupation, and wage, return a sentence containing all the information.
+  For example:
+  print("Sam", "Engineer", 25) == "Hey, Sam. You are an engineer and your hourly wage is 25 dollars."
+*/
+const print = (name, occupation, wage) => {
+  return `Hey, ${name}. You are an ${occupation} and your hourly wage is ${wage} dollars.`;
+};
