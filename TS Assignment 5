@@ -1,0 +1,159 @@
+// calculator-values.ts (or part of the same file for this example)
+class CalculatorValues {
+  constructor(public currentInput: string = '', public operator: string | null = null, public firstOperand: number | null = null) {}
+
+  clear(): void {
+    this.currentInput = '';
+    this.operator = null;
+    this.firstOperand = null;
+  }
+
+  appendValue(value: string): void {
+    this.currentInput += value;
+  }
+
+  setOperator(newOperator: string): void {
+    this.operator = newOperator;
+  }
+
+  getInputValue(): string {
+    return this.currentInput;
+  }
+
+  setInputValue(value: string): void {
+    this.currentInput = value;
+  }
+
+  getFirstOperand(): number | null {
+    return this.firstOperand;
+  }
+
+  setFirstOperand(value: number | null): void {
+    this.firstOperand = value;
+  }
+
+  getOperator(): string | null {
+    return this.operator;
+  }
+}
+
+// calculator-logic.ts (or part of the same file)
+class CalculatorLogic {
+  constructor(private values: CalculatorValues) {}
+
+  calculate(): number | string | null {
+    const secondOperand = parseFloat(this.values.getInputValue());
+    const firstOperand = this.values.getFirstOperand();
+    const operator = this.values.getOperator();
+
+    if (operator === null || firstOperand === null || isNaN(secondOperand)) {
+      return secondOperand; // Return current input if no operation is pending
+    }
+
+    let result: number;
+    switch (operator) {
+      case '+':
+        result = firstOperand + secondOperand;
+        break;
+      case '-':
+        result = firstOperand - secondOperand;
+        break;
+      case '*':
+        result = firstOperand * secondOperand;
+        break;
+      case '/':
+        if (secondOperand === 0) {
+          return 'Error: Division by zero';
+        } else {
+          result = firstOperand / secondOperand;
+        }
+        break;
+      default:
+        return secondOperand;
+    }
+
+    this.values.setFirstOperand(result);
+    this.values.setInputValue(String(result));
+    this.values.setOperator(null);
+    return result;
+  }
+
+  handleOperator(operator: string): void {
+    if (this.values.getInputValue() === '') return;
+
+    if (this.values.getFirstOperand() !== null) {
+      this.calculate();
+    }
+
+    this.values.setFirstOperand(parseFloat(this.values.getInputValue()));
+    this.values.setOperator(operator);
+    this.values.setInputValue('');
+  }
+}
+
+// main.ts (or the execution part of your script)
+class CalculatorApp {
+  private values: CalculatorValues;
+  private logic: CalculatorLogic;
+  private displayElement: HTMLInputElement;
+
+  constructor() {
+    this.values = new CalculatorValues();
+    this.logic = new CalculatorLogic(this.values);
+    this.displayElement = document.getElementById('display') as HTMLInputElement; // Assuming you have an input element with id 'display'
+
+    this.setupEventListeners();
+    this.updateDisplay();
+  }
+
+  appendValue(value: string): void {
+    this.values.appendValue(value);
+    this.updateDisplay();
+  }
+
+  clearDisplay(): void {
+    this.values.clear();
+    this.updateDisplay();
+  }
+
+  handleOperator(operator: string): void {
+    this.logic.handleOperator(operator);
+    this.updateDisplay();
+  }
+
+  calculate(): void {
+    const result = this.logic.calculate();
+    this.values.setFirstOperand(null); // Reset first operand after calculation
+    if (typeof result === 'number' || typeof result === 'string') {
+      this.values.setInputValue(String(result));
+      this.updateDisplay();
+    }
+  }
+
+  updateDisplay(): void {
+    if (this.displayElement) {
+      this.displayElement.value = this.values.getInputValue();
+    }
+  }
+
+  setupEventListeners(): void {
+    const buttons = document.querySelectorAll('.buttons button');
+    buttons.forEach(button => {
+      const value = button.textContent;
+      if (!isNaN(Number(value)) || value === '.') {
+        button.addEventListener('click', () => this.appendValue(value!));
+      } else if (['+', '-', '*', '/'].includes(value!)) {
+        button.addEventListener('click', () => this.handleOperator(value!));
+      } else if (value === 'C') {
+        button.addEventListener('click', () => this.clearDisplay());
+      } else if (value === '=') {
+        button.addEventListener('click', () => this.calculate());
+      }
+    });
+  }
+}
+
+// Instantiate and run the app when the DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  new CalculatorApp();
+});
