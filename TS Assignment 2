@@ -1,0 +1,10 @@
+/*
+  Converts a shoe size from one system (US or EU) to the other using a universal offset.
+*/
+function convertShoeSize(shoeSize: number): number {
+  const offset = 33;
+  return shoeSize + offset;
+}
+
+// Example of converting a US shoe size to EU (assuming the offset works for this direction)
+console.log(convertShoeSize(8)); // Output: 41
