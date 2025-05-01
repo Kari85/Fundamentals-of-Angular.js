@@ -1,0 +1,21 @@
+/*
+  Given an array of numbers, return the sum of all the numbers in the array.
+  For example:
+  arraySum([5, 5, 1, 3]) == 14
+*/
+const arraySum = (arr: number[]): number => {
+  let sum: number = 0;
+  for (let i = 0; i < arr.length; i++) {
+    sum += arr[i];
+  }
+  return sum;
+};
+
+/*
+  Given a name, occupation, and wage, return a sentence containing all the information.
+  For example:
+  print("Sam", "Engineer", 25) == "Hey, Sam. You are an engineer and your hourly wage is 25 dollars."
+*/
+const print = (name: string, occupation: string, wage: number): string => {
+  return `Hey, ${name}. You are an ${occupation} and your hourly wage is ${wage} dollars.`;
+};
