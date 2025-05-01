@@ -1,0 +1,24 @@
+function castValue(value: unknown): string | number | string {
+  if (typeof value === 'string') {
+    const stringValue: string = value as string;
+    return stringValue;
+  } else if (typeof value === 'number') {
+    const numberValue: number = value as number;
+    return numberValue;
+  } else {
+    return "Sorry, this is an unsupported type";
+  }
+}
+
+// Usage examples:
+const stringResult = castValue("Word");
+console.log(stringResult);
+
+const numberResult = castValue(525);
+console.log(numberResult);
+
+const booleanResult = castValue(false);
+console.log(booleanResult);
+
+const objectResult = castValue({ key: "value" });
+console.log(objectResult);
