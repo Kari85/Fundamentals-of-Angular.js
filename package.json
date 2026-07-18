@@ -1,0 +1,22 @@
+{
+  "name": "fundamentals-of-angular-rest-api",
+  "version": "1.0.0",
+  "description": "A small Node.js, Express, and SQLite REST API example.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node --test"
+  },
+  "keywords": [
+    "node",
+    "express",
+    "sqlite",
+    "rest-api"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "devDependencies": {}
+}
