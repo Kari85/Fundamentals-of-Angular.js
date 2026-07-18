@@ -1,0 +1,125 @@
+/*
+  AI helper functions for time-series business data:
+  - anomaly detection
+  - forecasts
+  - reports
+*/
+
+type DataPoint = {
+  label: string;
+  value: number;
+};
+
+type Anomaly = DataPoint & {
+  zScore: number;
+  reason: string;
+};
+
+type ForecastPoint = {
+  label: string;
+  predictedValue: number;
+};
+
+type AiReport = {
+  title: string;
+  summary: string;
+  anomalies: Anomaly[];
+  forecast: ForecastPoint[];
+  recommendations: string[];
+};
+
+function calculateAverage(values: number[]): number {
+  if (values.length === 0) {
+    return 0;
+  }
+
+  const sum = values.reduce((total, value) => total + value, 0);
+  return sum / values.length;
+}
+
+function calculateStandardDeviation(values: number[]): number {
+  if (values.length === 0) {
+    return 0;
+  }
+
+  const average = calculateAverage(values);
+  const variance = calculateAverage(values.map(value => Math.pow(value - average, 2)));
+  return Math.sqrt(variance);
+}
+
+function detectAnomalies(data: DataPoint[], zScoreLimit: number = 2): Anomaly[] {
+  const values = data.map(point => point.value);
+  const average = calculateAverage(values);
+  const standardDeviation = calculateStandardDeviation(values);
+
+  if (standardDeviation === 0) {
+    return [];
+  }
+
+  return data
+    .map(point => {
+      const zScore = (point.value - average) / standardDeviation;
+      return {
+        ...point,
+        zScore,
+        reason: point.value > average ? 'Value is unusually high' : 'Value is unusually low'
+      };
+    })
+    .filter(point => Math.abs(point.zScore) >= zScoreLimit);
+}
+
+function createForecast(data: DataPoint[], periods: number = 3): ForecastPoint[] {
+  if (data.length === 0 || periods <= 0) {
+    return [];
+  }
+
+  const firstValue = data[0].value;
+  const lastValue = data[data.length - 1].value;
+  const trend = data.length > 1 ? (lastValue - firstValue) / (data.length - 1) : 0;
+
+  return Array.from({ length: periods }, (_, index) => {
+    const step = index + 1;
+    return {
+      label: `Forecast ${step}`,
+      predictedValue: Number((lastValue + trend * step).toFixed(2))
+    };
+  });
+}
+
+function createAiReport(title: string, data: DataPoint[]): AiReport {
+  const anomalies = detectAnomalies(data);
+  const forecast = createForecast(data);
+  const latestValue = data.length > 0 ? data[data.length - 1].value : 0;
+  const average = calculateAverage(data.map(point => point.value));
+
+  const recommendations: string[] = [
+    anomalies.length > 0
+      ? 'Review the detected anomalies and compare them with business events.'
+      : 'No major anomalies were detected; continue normal monitoring.',
+    latestValue >= average
+      ? 'Prepare capacity and resources for continued demand.'
+      : 'Investigate whether the latest value indicates weakening demand.',
+    'Use the forecast as a planning signal, not as the only decision-making input.'
+  ];
+
+  return {
+    title,
+    summary: `Analyzed ${data.length} data points. Latest value is ${latestValue}, average is ${average.toFixed(2)}.`,
+    anomalies,
+    forecast,
+    recommendations
+  };
+}
+
+// Usage example:
+const monthlySales: DataPoint[] = [
+  { label: 'January', value: 120 },
+  { label: 'February', value: 128 },
+  { label: 'March', value: 125 },
+  { label: 'April', value: 250 },
+  { label: 'May', value: 132 },
+  { label: 'June', value: 140 }
+];
+
+const report = createAiReport('Monthly sales AI report', monthlySales);
+console.log(report);
